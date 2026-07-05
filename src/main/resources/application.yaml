@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: demo
+
+server:
+  port: 8088
+
+
+
+embabel:
+  agent:
+    platform:
+      models:
+        openai:
+          api-key: ${OPENAI_API_KEY:}
+    logging:
+      personality: severance
+  models:
+    default-llm: gpt-4.1-mini
+    llms:
+      reviewer: gpt-4.1-mini
+  logging:
+    level:
+      com.embabel.agent: DEBUG
+  observability:
+    enabled: true
+    #trace-planning: true
+management:
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0  # 1.0 = 100%, 0.5 = 50%, etc.
