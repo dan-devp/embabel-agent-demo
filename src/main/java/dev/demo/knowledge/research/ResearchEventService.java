@@ -2,7 +2,6 @@ package dev.demo.knowledge.research;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.demo.knowledge.research.dto.ResearchReport;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -11,7 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-@Log4j2
+@Slf4j
 public class ResearchEventService {
 
     private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();

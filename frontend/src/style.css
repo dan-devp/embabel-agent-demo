@@ -4,23 +4,7 @@
   padding: 0;
 }
 
-/* Light mode — default */
 :root {
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --primary-light: #818cf8;
-  --bg: #f5f6fb;
-  --bg-card: #ffffff;
-  --bg-elevated: #eef0f9;
-  --text: #1e2336;
-  --text-muted: #64748b;
-  --border: #dde1f0;
-  --success: #10b981;
-  --radius: 12px;
-}
-
-/* Dark mode */
-[data-theme="dark"] {
   --primary: #6366f1;
   --primary-dark: #4f46e5;
   --primary-light: #a5b4fc;
@@ -40,7 +24,6 @@ html, body {
   background: var(--bg);
   color: var(--text);
   line-height: 1.6;
-  transition: background 0.2s, color 0.2s;
 }
 
 #app {

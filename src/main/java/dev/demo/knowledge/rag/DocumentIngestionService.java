@@ -2,7 +2,6 @@ package dev.demo.knowledge.rag;
 
 import dev.demo.knowledge.rag.dto.DocumentInfo;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.TextReader;
@@ -22,7 +21,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class DocumentIngestionService {
 
     private final VectorStore vectorStore;

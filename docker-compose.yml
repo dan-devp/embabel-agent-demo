@@ -1,0 +1,31 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${SERVER_PORT:-8088}:8088"
+    environment:
+      - EMBABEL_AGENT_PLATFORM_MODELS_OPENAI_API_KEY=${OPENAI_API_KEY}
+      - EMBABEL_MODELS_DEFAULT_LLM=${EMBABEL_MODELS_DEFAULT_LLM:-gpt-4.1-mini}
+      - EMBABEL_MODELS_REVIEWER_LLM=${EMBABEL_MODELS_REVIEWER_LLM:-gpt-4.1-mini}
+      - EMBABEL_AGENT_LOGGING_PERSONALITY=${EMBABEL_AGENT_LOGGING_PERSONALITY:-severance}
+      - MANAGEMENT_TRACING_ENABLED=${MANAGEMENT_TRACING_ENABLED:-true}
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=${MANAGEMENT_TRACING_SAMPLING_PROBABILITY:-1.0}
+    networks:
+      - demo-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - demo-net
+
+networks:
+  demo-net:
+    driver: bridge

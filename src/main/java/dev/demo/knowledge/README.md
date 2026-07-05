@@ -35,7 +35,7 @@ Drei Szenarien aus dem „Agentic AI Experience Center", alle im Package `dev.de
 | Embeddings | OpenAI `text-embedding-3-small` |
 | Document Splitting | Spring AI `TokenTextSplitter` |
 | Text Reader | Spring AI `TextReader` |
-| LLM | GPT-4.1-Mini via Spring AI `ChatClient` |
+| LLM | GPT-4.1-Mini via Embabel |
 
 ### Relevante Dateien
 
@@ -83,7 +83,6 @@ Client-seitig: Browser hält `sessionId` in `localStorage`. Sichtbar in der UI a
 | Memory Store | Redis 7 (Docker Container) |
 | Session-ID | Client-generiert (localStorage) |
 | History-Format | `role: content` Strings in Redis List |
-| LLM | GPT-4.1-Mini via Spring AI `ChatClient` |
 | TTL | 7 Tage |
 
 ### Relevante Dateien
@@ -105,71 +104,52 @@ knowledge/memory/
 
 ### Was passiert
 
-`POST /research/analyze` gibt sofort eine `jobId` zurück. Die Analyse läuft async — Fortschritt wird per SSE gestreamt.
-
 Embabel orchestriert 3 `@Action`-Schritte als Pipeline:
 
 ```
-ResearchJob (jobId + topic)
+ResearchRequest
       │
-      ▼ [Schritt 1] breakDownQuestion    → SSE step {step:1}
+      ▼ [Schritt 1] breakDownQuestion
   SubQueries (3–5 Teilfragen)
       │
-      ▼ [Schritt 2] searchDocuments      → SSE step {step:2}
+      ▼ [Schritt 2] searchDocuments
   SearchResults (gefundene Texte + Quellen)
       │
-      ▼ [Schritt 3] synthesizeReport     → SSE step {step:3}
+      ▼ [Schritt 3] synthesizeReport
   ResearchReport (summary, keyFindings, sources)
-      │
-      ▼  SSE done {report: ...}
 ```
 
-**Schritt 1 — Zerlegen:** GPT analysiert die Forschungsfrage und erstellt 3–5 präzise Suchfragen.
+**Schritt 1 — Zerlegen:** GPT analysiert die Forschungsfrage und erstellt 3–5 präzise Suchfragen, die das Thema vollständig abdecken.
 
-**Schritt 2 — Suchen:** Für jede Teilfrage wird der VectorStore mit Top-3-Similarity-Search durchsucht. Kein LLM-Call — reiner VectorStore-Lookup.
+**Schritt 2 — Suchen:** Für jede Teilfrage wird der VectorStore mit Top-3-Similarity-Search durchsucht. Ergebnisse werden gesammelt.
 
 **Schritt 3 — Synthetisieren:** GPT bekommt alle gefundenen Textstücke und erstellt einen strukturierten Bericht mit Summary, Key Findings und Quellenangaben.
-
-### SSE Event-Format
-
-```json
-{ "type": "step", "step": 1, "label": "Frage zerlegen in Teilfragen" }
-{ "type": "step", "step": 2, "label": "Wissensbasis durchsuchen" }
-{ "type": "step", "step": 3, "label": "Bericht synthetisieren" }
-{ "type": "done", "report": { "topic": "...", "summary": "...", "keyFindings": [...], "sources": [...] } }
-{ "type": "error", "message": "..." }
-```
 
 ### Beeindruckende Demo-Momente
 
 - „Preisstruktur und Lizenzmodelle" → zieht Daten aus Preisliste, FAQ und Produktkatalog zusammen
 - „Unternehmenskultur und Benefits" → kombiniert Infos aus Mitarbeiterhandbuch
-- Fortschrittsanzeige: SSE-Steps erscheinen live während die Pipeline läuft
+- Man sieht in den Logs (Embabel Observability), wie die 3 Schritte sequenziell ausgeführt werden
 
 ### Technischer Stack
 
 | Komponente | Technologie |
 |------------|-------------|
 | Agent-Orchestrierung | Embabel `@Agent` + `@Action` Pipeline |
-| Async-Ausführung | `ResearchAsyncService` (`@Async`) |
-| SSE-Streaming | `ResearchEventService` (`SseEmitter`, Timeout: 5 min) |
 | Schritt 1 & 3 | GPT-4.1-Mini via Embabel `Ai` |
-| Schritt 2 | Spring AI `VectorStore.similaritySearch()` (Top-3 per Teilfrage) |
+| Schritt 2 | Spring AI `VectorStore.similaritySearch()` |
 | Output | Strukturiertes `ResearchReport` JSON |
 
 ### Relevante Dateien
 
 ```
 knowledge/research/
-├── ResearchAgent.java         — 3 @Action-Methoden (Embabel Pipeline)
-├── ResearchAsyncService.java  — @Async Wrapper, startet AgentInvocation
-├── ResearchController.java    — REST: POST /research/analyze, GET /research/stream/{jobId}
-├── ResearchEventService.java  — SSE-Emitter-Verwaltung + Event-Publisher
+├── ResearchAgent.java      — 3 @Action-Methoden (Embabel Pipeline)
+├── ResearchController.java — REST: POST /research/analyze
 └── dto/
-    ├── ResearchRequest.java   — {topic}  (eingehender Request)
-    ├── ResearchJob.java       — {jobId, topic}  (internes Blackboard-DTO)
-    ├── SubQueries.java        — {jobId, originalTopic, queries[]}
-    ├── SearchResults.java     — {jobId, originalTopic, findings[], sources[]}
+    ├── ResearchRequest.java  — {topic}
+    ├── SubQueries.java        — {originalTopic, queries[]}
+    ├── SearchResults.java     — {originalTopic, findings[], sources[]}
     └── ResearchReport.java    — {topic, summary, keyFindings[], sources[]}
 ```
 
@@ -198,8 +178,7 @@ Liegen in `src/main/resources/knowledge/docs/`, werden beim App-Start automatisc
 | POST | `/memory/chat` | Chat mit Gedächtnis |
 | GET | `/memory/history/{sessionId}` | Chat-History abrufen |
 | DELETE | `/memory/history/{sessionId}` | Chat-History löschen |
-| POST | `/research/analyze` | Startet Research-Job, gibt `jobId` zurück |
-| GET  | `/research/stream/{jobId}` | SSE-Stream mit Step-Events und Ergebnis |
+| POST | `/research/analyze` | Deep-Research-Bericht erstellen |
 
 ---
 

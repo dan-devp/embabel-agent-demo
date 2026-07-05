@@ -62,7 +62,7 @@
       <div class="feature-card">
         <div class="feature-icon">&#x1F4AC;</div>
         <h3>REST API</h3>
-        <p>POST /chat — direkte Agenteninvokation via HTTP.</p>
+        <p>POST /test — direkte Agenteninvokation via HTTP.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">&#x1F4CA;</div>
@@ -86,7 +86,7 @@ const serverMessage = ref('Backend wird geprüft...')
 
 onMounted(async () => {
   try {
-    const res = await fetch('/chat')
+    const res = await fetch('/test')
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     serverStatus.value = 'ok'
     serverMessage.value = await res.text()
@@ -106,7 +106,7 @@ async function send() {
   await nextTick()
   scrollToBottom()
   try {
-    const res = await fetch('/chat', {
+    const res = await fetch('/test', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: text })

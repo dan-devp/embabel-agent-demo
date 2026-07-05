@@ -6,17 +6,11 @@
         AI Agent Demo
       </div>
       <div class="nav-links">
-        <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/knowledge">Knowledge</RouterLink>
         <RouterLink to="/memory">Memory</RouterLink>
         <RouterLink to="/research">Research</RouterLink>
-        <RouterLink to="/collaboration">Collaboration</RouterLink>
-        <RouterLink to="/action">Action</RouterLink>
         <RouterLink to="/agent">Agent</RouterLink>
       </div>
-      <button class="theme-toggle" @click="toggleTheme" :title="isDark ? 'Light mode' : 'Dark mode'">
-        {{ isDark ? '☀️' : '🌙' }}
-      </button>
     </nav>
     <RouterView />
     <footer class="footer">
@@ -26,25 +20,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
-
-const isDark = ref(false)
-
-function applyTheme(dark) {
-  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
-  localStorage.setItem('theme', dark ? 'dark' : 'light')
-}
-
-function toggleTheme() {
-  isDark.value = !isDark.value
-  applyTheme(isDark.value)
-}
-
-onMounted(() => {
-  isDark.value = localStorage.getItem('theme') === 'dark'
-  applyTheme(isDark.value)
-})
 </script>
 
 <style scoped>
@@ -107,25 +83,6 @@ onMounted(() => {
 .nav-links a.router-link-active {
   color: var(--primary-light);
   background: rgba(99, 102, 241, 0.12);
-}
-
-.theme-toggle {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 5px 10px;
-  cursor: pointer;
-  font-size: 15px;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  transition: border-color 0.15s, background 0.15s;
-  flex-shrink: 0;
-}
-
-.theme-toggle:hover {
-  border-color: var(--primary);
-  background: var(--bg-card);
 }
 
 .footer {

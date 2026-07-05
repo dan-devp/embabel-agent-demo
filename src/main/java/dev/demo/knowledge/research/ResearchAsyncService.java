@@ -6,13 +6,13 @@ import com.embabel.agent.core.ProcessOptions;
 import dev.demo.knowledge.research.dto.ResearchJob;
 import dev.demo.knowledge.research.dto.ResearchReport;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class ResearchAsyncService {
 
     private final AgentPlatform agentPlatform;
